@@ -45,7 +45,6 @@ const CartProvider: React.FC = ({ children }) => {
   const addToCart = useCallback(
     async product => {
       const productOnCart = products.find(item => item.id === product.id);
-
       if (productOnCart) {
         const productUpdated: Product = {
           id: productOnCart.id,
@@ -54,15 +53,28 @@ const CartProvider: React.FC = ({ children }) => {
           price: productOnCart.price,
           quantity: productOnCart.quantity + 1,
         };
-
         const updatedList: Product[] = products.filter(
           item => item.id !== productUpdated.id,
         );
+
+        setProducts([...updatedList, productUpdated]);
 
         await AsyncStorage.setItem(
           '@GoMarketPlace: cart',
           JSON.stringify([...updatedList, productUpdated]),
         );
+      }
+
+      if (!productOnCart) {
+        const newProductOnCart: Product = {
+          id: product.id,
+          title: product.title,
+          image_url: product.image_url,
+          price: Number(product.price),
+          quantity: 1,
+        };
+
+        setProducts([...products, newProductOnCart]);
       }
 
       await AsyncStorage.setItem(
@@ -127,7 +139,6 @@ const CartProvider: React.FC = ({ children }) => {
           setProducts(newProductsList);
         }
       }
-
       await AsyncStorage.setItem(
         '@GoMarketPlace: cart',
         JSON.stringify(products),
